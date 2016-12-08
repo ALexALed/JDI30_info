@@ -30,6 +30,7 @@ def get_companies_by_method(method):
     else:
         raise NotImplementedError
 
+
 class YahooFinanceScraper(object):
     JDI_url = "https://finance.yahoo.com/quote/%5EDJI/components?p=%5EDJI"
     JDI_companies_css_class = "C($actionBlue) Cur(p) Td(u)"
