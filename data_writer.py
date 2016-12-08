@@ -11,6 +11,7 @@ class CompanyDataWriter(object):
 
     def create_connection(self):
         self.connection = sqlite3.connect('test.db')
+        self.create_table()
 
     def create_table(self):
         cursor = self.connection.cursor()
@@ -22,4 +23,17 @@ class CompanyDataWriter(object):
                 self.connection.execute(sql_file.read())
 
     def add_company_data(self, company_data):
-        pass
+        cursor = self.connection.cursor()
+        cursor.execute(
+            '''INSERT OR REPLACE INTO COMPANY (
+            id, name, est_revenue, url, street, city, zip_code, country, employees_count, industry
+            ) VALUES (
+            "{key}","{name}","{est_revenue}","{url}","{street}","{city}",
+            "{zip_code}","{country}",{employees_count},"{industry}");'''.format(**company_data)
+        )
+        self.connection.commit()
+
+    def get_all_companies(self):
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT * FROM COMPANY")
+        return cursor.fetchall()

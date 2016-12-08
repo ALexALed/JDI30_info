@@ -1,7 +1,7 @@
 CREATE TABLE COMPANY(
    id             TEXT PRIMARY KEY NOT NULL,
    name           TEXT NOT NULL,
-   est_revenue    INT,
+   est_revenue    TEXT,
    url            TEXT,
    street         TEXT,
    city           TEXT,
