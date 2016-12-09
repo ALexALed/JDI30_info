@@ -24,14 +24,17 @@ class CompanyDataWriter(object):
 
     def add_company_data(self, company_data):
         cursor = self.connection.cursor()
-        cursor.execute(
-            '''INSERT OR REPLACE INTO COMPANY (
-            id, name, est_revenue, url, street, city, zip_code, country, employees_count, industry
-            ) VALUES (
-            "{key}","{name}","{est_revenue}","{url}","{street}","{city}",
-            "{zip_code}","{country}",{employees_count},"{industry}");'''.format(**company_data)
-        )
-        self.connection.commit()
+        query_str = '''INSERT OR REPLACE INTO COMPANY (
+                    id, name, est_revenue, url, street, city, zip_code, country, employees_count, industry
+                    ) VALUES (
+                    "{key}","{name}","{est_revenue}","{url}","{street}","{city}",
+                    "{zip_code}","{country}",{employees_count},"{industry}");'''.format(**company_data)
+        try:
+            cursor.execute(query_str)
+            self.connection.commit()
+        except Exception as exception:
+            print("Problem with query")
+            print(query_str)
 
     def get_all_companies(self):
         cursor = self.connection.cursor()

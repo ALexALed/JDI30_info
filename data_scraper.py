@@ -13,7 +13,6 @@ class ScraperEngine(object):
         session = dryscrape.Session()
         session.visit(self.url)
         self.html_body = session.body()
-        session.reset()
 
     def run_parse(self):
         self.parsed_data = BeautifulSoup(self.html_body, "lxml")
@@ -23,8 +22,9 @@ class ScraperEngine(object):
         self.run_parse()
         return self.parsed_data
 
-def get_companies_by_method(method):
-    if method=='yahoo':
+
+def get_companies_data_by_method(method):
+    if method == 'yahoo':
         yahoo_scraper = YahooFinanceScraper()
         return yahoo_scraper.get_companies()
     else:
@@ -54,11 +54,11 @@ class YahooFinanceScraper(object):
         self.soup_data = scraper.get_parsed_data()
         left_block_data = self._get_profile_block_data(
             block_class="D(ib) W(47.727%) Pend(40px)",
-            block_keys =('street', 'city', 'country', 'phone', 'url')
+            block_keys=('street', 'city', 'country', 'phone', 'url')
         )
         right_block_data = self._get_profile_block_data(
             block_class="D(ib) Va(t)",
-            block_keys =('sector', 'industry', 'employees_count')
+            block_keys=('sector', 'industry', 'employees_count')
         )
         company_data = {
             'name': '',
@@ -76,8 +76,8 @@ class YahooFinanceScraper(object):
         company_data.update(left_block_data)
         company_data.update(right_block_data)
         company_data['zip_code'] = company_data['city'][-5:]
-        company_data['employees_count'] = int(company_data['employees_count'].replace(',', '')
-            ) if company_data['employees_count'] else ''
+        company_data['employees_count'] = (int(company_data['employees_count'].replace(',', ''))
+                                           if company_data['employees_count'] else '')
         company_data['city'] = company_data['city'].replace(company_data['zip_code'], '').strip()
         company_data['key'] = company_key
         return company_data
@@ -85,11 +85,16 @@ class YahooFinanceScraper(object):
     def _get_profile_block_data(self, block_class, block_keys):
         parsed_block_data = []
 
-        for data_row in self.soup_data.find(class_=block_class):
-            if ('react-text' in data_row or
-                '<br/>' in str(data_row) or
-                data_row == ': ' or
-                str(data_row) in ['<span>Sector</span>', '<span>Industry</span>', '<span>Full Time Employees</span>']):
+        block_data = self.soup_data.find(class_=block_class)
+        if not block_data:
+            print("Problem with seek data for class {}".format(block_class))
+            return {}
+
+        for data_row in block_data:
+            if (
+                'react-text' in data_row or '<br/>' in str(data_row) or data_row == ': ' or
+                str(data_row) in ['<span>Sector</span>', '<span>Industry</span>', '<span>Full Time Employees</span>']
+            ):
                 continue
             if not isinstance(data_row, basestring):
                 data_row = data_row.get_text()
@@ -99,6 +104,11 @@ class YahooFinanceScraper(object):
     def _get_est_revenue(self, company_key, scraper):
         scraper.url = YahooFinanceScraper.analists_url_pattern.format(company_key=company_key)
         self.soup_data = scraper.get_parsed_data()
-        return self.soup_data.find(text="Revenue Estimate").findNext(
-            text="Avg. Estimate"
-        ).findNext('td').findNext('td').findNext('td').get_text()
+        est_average = ''
+        try:
+            est_average = self.soup_data.find(text="Revenue Estimate").findNext(
+                text="Avg. Estimate"
+            ).findNext('td').findNext('td').findNext('td').get_text()
+        except Exception as exception:
+            print('Error for retrieve Estimate for company {}'.format(company_key))
+        return est_average
