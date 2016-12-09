@@ -45,9 +45,9 @@ class YahooFinanceScraper(object):
             companies = [company_tag.get('title')
                          for company_tag in self.soup_data.findAll(class_=YahooFinanceScraper.JDI_companies_css_class)]
         self.companies_data = {}
+
         for company_key in companies:
-            self.companies_data[company_key] = self._get_company_data(company_key, scraper)
-        return self.companies_data
+            yield self._get_company_data(company_key, scraper)
 
     def _get_company_data(self, company_key, scraper):
         scraper.url = YahooFinanceScraper.profile_url_pattern.format(company_key=company_key)
@@ -80,6 +80,7 @@ class YahooFinanceScraper(object):
                                            if company_data['employees_count'] else '')
         company_data['city'] = company_data['city'].replace(company_data['zip_code'], '').strip()
         company_data['key'] = company_key
+        print(company_data)
         return company_data
 
     def _get_profile_block_data(self, block_class, block_keys):

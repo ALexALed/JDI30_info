@@ -5,8 +5,7 @@ from data_writer import CompanyDataWriter
 def write_companies_data():
     with CompanyDataWriter() as writer:
         print('Scraping companies data...')
-        companies_data = get_companies_data_by_method(method='yahoo')
-        for company_data in companies_data.values():
+        for company_data in get_companies_data_by_method(method='yahoo'):
             writer.add_company_data(company_data)
             print('Writed data for {}'.format(company_data.get('key')))
 
