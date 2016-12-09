@@ -85,7 +85,6 @@ class YahooFinanceScraper(object):
                                            if company_data['employees_count'] else '')
         company_data['city'] = company_data['city'].replace(company_data['zip_code'], '').strip()
         company_data['key'] = company_key
-        print(company_data)
         return company_data
 
     def _get_profile_block_data(self, block_class, block_keys):
