@@ -71,6 +71,12 @@ class YahooFinanceScraper(object):
             'employees_count': 0,
             'industry': ''
         }
+
+        try:
+            company_data['name'] = self.soup_data.find(class_="Mb(10px)").get_text()
+        except Exception as exception:
+            print('Error for retrieve Name for company {}'.format(company_key))
+
         company_data['name'] = self.soup_data.find(class_="Mb(10px)").get_text()
         company_data['est_revenue'] = self._get_est_revenue(company_key, scraper)
         company_data.update(left_block_data)
